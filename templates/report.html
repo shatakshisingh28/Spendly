@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Report — Spendly{% endblock %}
+
+{% block content %}
+<div class="page-header animate-in">
+  <h1>Spending Report</h1>
+  <p>A breakdown of where your money goes.</p>
+</div>
+
+<!-- Total -->
+<div class="stats-row animate-in" style="animation-delay:0.05s">
+  <div class="stat-card">
+    <div class="stat-label">Total Spent</div>
+    <div class="stat-value accent">₹{{ "%.2f"|format(total) }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Categories</div>
+    <div class="stat-value">{{ summary|length }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Months Tracked</div>
+    <div class="stat-value">{{ monthly|length }}</div>
+  </div>
+</div>
+
+<!-- Category Breakdown -->
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; flex-wrap:wrap">
+
+  <div class="card animate-in" style="animation-delay:0.1s">
+    <div style="padding:1.5rem 1.5rem 0.75rem; border-bottom:1px solid var(--border)">
+      <h2 style="font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700">By Category</h2>
+    </div>
+    <div style="padding:1.25rem 1.5rem">
+      {% if summary %}
+        {% for cat, amt in summary.items() %}
+        {% set pct = (amt / total * 100) if total > 0 else 0 %}
+        <div style="margin-bottom:1.25rem">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; font-size:0.875rem">
+            <span>{{ cat }}</span>
+            <span style="font-family:'DM Mono',monospace; color:var(--accent)">₹{{ "%.0f"|format(amt) }}</span>
+          </div>
+          <div style="height:6px; background:var(--surface2); border-radius:99px; overflow:hidden">
+            <div style="height:100%; width:{{ pct }}%; background:linear-gradient(90deg,var(--accent2),var(--accent));
+                        border-radius:99px; transition:width 0.6s ease;"></div>
+          </div>
+          <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem">{{ "%.1f"|format(pct) }}%</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:var(--muted); text-align:center; padding:2rem 0">No data yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Monthly Breakdown -->
+  <div class="card animate-in" style="animation-delay:0.15s">
+    <div style="padding:1.5rem 1.5rem 0.75rem; border-bottom:1px solid var(--border)">
+      <h2 style="font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700">By Month</h2>
+    </div>
+    <div style="padding:1.25rem 1.5rem">
+      {% if monthly %}
+        {% set max_month = monthly.values()|max %}
+        {% for month, amt in monthly.items() %}
+        {% set pct = (amt / max_month * 100) if max_month > 0 else 0 %}
+        <div style="margin-bottom:1.25rem">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; font-size:0.875rem">
+            <span style="font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--muted)">{{ month }}</span>
+            <span style="font-family:'DM Mono',monospace; color:var(--text)">₹{{ "%.0f"|format(amt) }}</span>
+          </div>
+          <div style="height:6px; background:var(--surface2); border-radius:99px; overflow:hidden">
+            <div style="height:100%; width:{{ pct }}%; background:var(--accent2);
+                        border-radius:99px; transition:width 0.6s ease;"></div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:var(--muted); text-align:center; padding:2rem 0">No data yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Category Table -->
+<div class="card animate-in" style="animation-delay:0.2s; margin-top:1.5rem">
+  <div style="padding:1.5rem 1.5rem 0.75rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center">
+    <h2 style="font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700">Full Breakdown</h2>
+    <a href="/" class="btn btn-ghost" style="font-size:0.8rem">← Back to Expenses</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Share</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cat, amt in summary.items() %}
+        <tr>
+          <td style="color:var(--muted); font-size:0.85rem">{{ loop.index }}</td>
+          <td><span class="badge">{{ cat }}</span></td>
+          <td class="amount-cell">₹{{ "%.2f"|format(amt) }}</td>
+          <td style="color:var(--muted); font-family:'DM Mono',monospace; font-size:0.85rem">
+            {{ "%.1f"|format(amt / total * 100) if total > 0 else 0 }}%
+          </td>
+        </tr>
+        {% endfor %}
+        <tr style="background:var(--surface2)">
+          <td colspan="2" style="font-weight:500">Total</td>
+          <td class="amount-cell" style="font-size:1rem">₹{{ "%.2f"|format(total) }}</td>
+          <td style="color:var(--muted); font-family:'DM Mono',monospace; font-size:0.85rem">100%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
